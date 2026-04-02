@@ -43,7 +43,8 @@ export default function ProfileSetupPage() {
       if (selectedFile) {
         const formData = new FormData();
         formData.append('file', selectedFile);
-        const uploadRes = await fetch('http://localhost:3001/profile/upload-picture', {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+        const uploadRes = await fetch(`${apiUrl}/profile/upload-picture`, {
           method: 'POST',
           headers: {
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,

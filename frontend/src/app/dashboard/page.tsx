@@ -151,7 +151,7 @@ export default function DashboardPage() {
               <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center overflow-hidden">
                 {(user as any)?.profilePicture ? (
                   <img
-                    src={`http://localhost:3001${(user as any).profilePicture}`}
+                    src={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}${(user as any).profilePicture}`}
                     alt="Profile"
                     className="w-full h-full object-cover"
                   />
