@@ -31,10 +31,10 @@ export class Task {
   @Column({ type: 'text', nullable: true })
   description: string;
 
-  @Column({ type: 'enum', enum: TaskStatus, default: TaskStatus.PENDING })
+  @Column({ type: 'varchar', default: TaskStatus.PENDING })
   status: TaskStatus;
 
-  @Column({ type: 'enum', enum: TaskPriority, default: TaskPriority.MEDIUM })
+  @Column({ type: 'varchar', default: TaskPriority.MEDIUM })
   priority: TaskPriority;
 
   @Column({ type: 'date', nullable: true })

@@ -91,6 +91,49 @@ export class AuthService {
     };
   }
 
+  // In-memory OTP store (simple approach for demo)
+  private otpStore = new Map<string, { otp: string; expiresAt: Date }>();
+
+  async forgotPassword(email: string) {
+    const user = await this.userRepo.findOne({ where: { email } });
+    if (!user) {
+      throw new UnauthorizedException('No account found with this email.');
+    }
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    this.otpStore.set(email, {
+      otp,
+      expiresAt: new Date(Date.now() + 10 * 60 * 1000), // 10 minutes
+    });
+
+    return { message: 'OTP generated', otp };
+  }
+
+  async resetPassword(email: string, otp: string, newPassword: string) {
+    const stored = this.otpStore.get(email);
+    if (!stored) {
+      throw new UnauthorizedException('No OTP requested for this email.');
+    }
+    if (stored.otp !== otp) {
+      throw new UnauthorizedException('Invalid OTP.');
+    }
+    if (stored.expiresAt < new Date()) {
+      this.otpStore.delete(email);
+      throw new UnauthorizedException('OTP has expired. Please request a new one.');
+    }
+
+    const user = await this.userRepo.findOne({ where: { email } });
+    if (!user) {
+      throw new UnauthorizedException('User not found.');
+    }
+
+    user.password = await bcrypt.hash(newPassword, 10);
+    await this.userRepo.save(user);
+    this.otpStore.delete(email);
+
+    return { message: 'Password reset successful. Please login with your new password.' };
+  }
+
   async logout(refreshToken: string) {
     if (refreshToken) {
       await this.refreshTokenRepo.update(
